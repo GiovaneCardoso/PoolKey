@@ -68,6 +68,7 @@ const Room = () => {
         {role == "master" && (
           <div>
             <p>Você é o administrador da sala</p>
+
             <button onClick={startMatch}>Começar partida</button>
           </div>
         )}
