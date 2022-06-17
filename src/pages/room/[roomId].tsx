@@ -59,7 +59,7 @@ const Room = () => {
         <>
           <p>Bolas</p>
           {balls?.map((numberOfBall) => (
-            <img src={`/images/${numberOfBall}.png`} />
+            <img key={numberOfBall} src={`/images/${numberOfBall}.png`} />
           ))}
         </>
       )}
