@@ -24,10 +24,11 @@ export default function socket(_: NextApiRequest, response: SocketResponse) {
 
     io.on("connection", (socket: any) => {
       console.log("sc0", socket);
-      socket.on("join", ({ roomId, name }: any) => {
+      socket.on("join", ({ roomId, name, score }: any) => {
         const user = {
           name,
           id: socket.id,
+          score: score || 0,
         };
         socket.join(roomId);
         if (name) {

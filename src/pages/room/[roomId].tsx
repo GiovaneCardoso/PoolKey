@@ -10,7 +10,6 @@ import {
   AccordionPanel,
   Text,
   Box,
-  NumberIncrementStepper,
   useNumberInput,
   HStack,
   Input,
@@ -21,22 +20,24 @@ import styles from "./room.module.scss";
 let socket: any;
 const Room = () => {
   const router = useRouter();
-  const { getInputProps, getIncrementButtonProps, getDecrementButtonProps } =
-    useNumberInput({
-      step: 1,
-      defaultValue: 0,
-      min: 0,
-    });
-  const inc = getIncrementButtonProps();
-  const dec = getDecrementButtonProps();
-  const input = getInputProps();
 
   const { name } = useUserContext();
   const { roomId } = router.query;
 
   const [users, setUsers] = useState<any[]>([]);
+  const [user, setUser] = useState<any>();
   const [role, setRole] = useState<string>("normal");
   const [balls, setBalls] = useState<number[]>([]);
+
+  const { getInputProps, getIncrementButtonProps, getDecrementButtonProps } =
+    useNumberInput({
+      step: 1,
+      defaultValue: user?.score || 0,
+      min: 0,
+    });
+  const inc = getIncrementButtonProps();
+  const dec = getDecrementButtonProps();
+  const input = getInputProps();
   useEffect(() => {
     socketInitializer();
     return () => {
@@ -68,10 +69,17 @@ const Room = () => {
     if (users[0]?.name == name) {
       setRole("master");
     }
+    const user = users.find((user) => user.name == name);
+    if (user) {
+      setUser(user);
+    }
   }, [users]);
 
   const startMatch = () => {
     socket.emit("startMatch");
+  };
+  const sendScore = (e: string, name: string) => {
+    socket.emit("score", { name, score: parseInt(e), roomId });
   };
 
   return (
@@ -83,7 +91,13 @@ const Room = () => {
       <div>
         <Accordion allowToggle bg="#737380" color="#fff">
           <AccordionItem bg="#737380" color="#fff">
-            <AccordionButton bg="#737380" color="#fff" border={0}>
+            <AccordionButton
+              bg="#737380"
+              color="#fff"
+              border={0}
+              display="flex"
+              justifyContent={"space-between"}
+            >
               <Box>
                 <p>Placar</p>
               </Box>
@@ -95,10 +109,9 @@ const Room = () => {
                   display={"flex"}
                   alignItems="center"
                   justifyContent={"space-between"}
+                  p="8"
                 >
-                  <Text>
-                    <p key={user.name}>{user.name}</p>
-                  </Text>
+                  <Text m="0">{user.name}</Text>
                   <HStack maxW="320px">
                     <Button {...dec} border="none" py="8" px="12">
                       -
@@ -108,6 +121,9 @@ const Room = () => {
                       maxWidth="50px"
                       textAlign={"center"}
                       p="7"
+                      onChange={(e) => {
+                        sendScore(e.target.value, user.name);
+                      }}
                     />
                     <Button {...inc} border="none" py="8" px="12">
                       +
