@@ -12,7 +12,10 @@ export default function Home() {
     if (!name || !room) {
       return;
     }
-    router.push(`/room/${room}`);
+    localStorage.setItem("user", name);
+    setTimeout(() => {
+      router.push(`/room/${room}`);
+    }, 1000);
   };
 
   return (

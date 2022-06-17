@@ -10,12 +10,18 @@ const Room = () => {
   const { name } = useUserContext();
   const { roomId } = router.query;
 
-  const [users, setUsers] = useState<string[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
   const [role, setRole] = useState<string>("normal");
+  const [balls, setBalls] = useState<number[]>([]);
+  useEffect(() => {
+    socketInitializer();
+    return () => socket && socket.disconnect();
+  }, []);
 
   const socketInitializer = async () => {
     await fetch("/api/socket");
-    socket = io("pool-key.vercel.app");
+
+    socket = io();
     socket.on("connect", () => {
       console.log("connected");
     });
@@ -23,25 +29,20 @@ const Room = () => {
       setUsers(users);
       console.log(users);
     });
+    socket.on("balls", (balls: number[]) => {
+      console.log(balls);
+      setBalls(balls);
+    });
     socket.emit("join", { roomId, name });
   };
-
   useEffect(() => {
-    socketInitializer();
-  }, []);
-  useEffect(() => {
-    if (name) {
-      localStorage.setItem("user", name);
-    }
-  }, [name]);
-  useEffect(() => {
-    if (users[0] == name) {
+    if (users[0]?.name == name) {
       setRole("master");
     }
   }, [users]);
 
   const startMatch = () => {
-    socket.to(roomId).emit("startMatch");
+    socket.emit("startMatch");
   };
 
   return (
@@ -50,10 +51,19 @@ const Room = () => {
       <p>Sala de ID {roomId}</p>
       <p>Usuários conectados</p>
       <div>
-        {users.map((user) => (
-          <p key={user}>{user}</p>
+        {users.map((user: any) => (
+          <p key={user.name}>{user.name}</p>
         ))}
       </div>
+      {balls && (
+        <>
+          <p>Bolas</p>
+          {balls?.map((numberOfBall) => (
+            <img src={`/images/${numberOfBall}.png`} />
+          ))}
+        </>
+      )}
+
       <div>
         {role == "master" && (
           <div>
