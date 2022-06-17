@@ -2,10 +2,34 @@ import React, { useEffect, useState } from "react";
 import { useUserContext } from "../../contexts/userContext";
 import io from "socket.io-client";
 import { useRouter } from "next/router";
+import {
+  Accordion,
+  AccordionButton,
+  AccordionIcon,
+  AccordionItem,
+  AccordionPanel,
+  Text,
+  Box,
+  NumberIncrementStepper,
+  useNumberInput,
+  HStack,
+  Input,
+  Button,
+} from "@chakra-ui/react";
+import styles from "./room.module.scss";
 
 let socket: any;
 const Room = () => {
   const router = useRouter();
+  const { getInputProps, getIncrementButtonProps, getDecrementButtonProps } =
+    useNumberInput({
+      step: 1,
+      defaultValue: 0,
+      min: 0,
+    });
+  const inc = getIncrementButtonProps();
+  const dec = getDecrementButtonProps();
+  const input = getInputProps();
 
   const { name } = useUserContext();
   const { roomId } = router.query;
@@ -15,7 +39,12 @@ const Room = () => {
   const [balls, setBalls] = useState<number[]>([]);
   useEffect(() => {
     socketInitializer();
-    return () => socket && socket.disconnect();
+    return () => {
+      if (socket) {
+        socket.disconnect();
+        socket.on("disconnect");
+      }
+    };
   }, []);
 
   const socketInitializer = async () => {
@@ -46,22 +75,59 @@ const Room = () => {
   };
 
   return (
-    <div>
-      <p>Olá {name}</p>
-      <p>Sala de ID {roomId}</p>
-      <p>Usuários conectados</p>
-      <div>
-        {users.map((user: any) => (
-          <p key={user.name}>{user.name}</p>
-        ))}
+    <div className={styles.roomContainer}>
+      <div className={styles.userData}>
+        <h1>Olá {name}</h1>
+        <p>Sala: {roomId}</p>
       </div>
-      {balls && (
-        <>
+      <div>
+        <Accordion allowToggle bg="#737380" color="#fff">
+          <AccordionItem bg="#737380" color="#fff">
+            <AccordionButton bg="#737380" color="#fff" border={0}>
+              <Box>
+                <p>Placar</p>
+              </Box>
+              <AccordionIcon />
+            </AccordionButton>
+            <AccordionPanel pb="4" color="#fff" p="4">
+              {users.map((user: any) => (
+                <Box
+                  display={"flex"}
+                  alignItems="center"
+                  justifyContent={"space-between"}
+                >
+                  <Text>
+                    <p key={user.name}>{user.name}</p>
+                  </Text>
+                  <HStack maxW="320px">
+                    <Button {...dec} border="none" py="8" px="12">
+                      -
+                    </Button>
+                    <Input
+                      {...input}
+                      maxWidth="50px"
+                      textAlign={"center"}
+                      p="7"
+                    />
+                    <Button {...inc} border="none" py="8" px="12">
+                      +
+                    </Button>
+                  </HStack>
+                </Box>
+              ))}
+            </AccordionPanel>
+          </AccordionItem>
+        </Accordion>
+      </div>
+      {!!balls.length && (
+        <div className={styles.balls}>
           <p>Bolas</p>
-          {balls?.map((numberOfBall) => (
-            <img key={numberOfBall} src={`/images/${numberOfBall}.png`} />
-          ))}
-        </>
+          <div className={styles.ballsImg}>
+            {balls?.map((numberOfBall) => (
+              <img key={numberOfBall} src={`/images/${numberOfBall}.png`} />
+            ))}
+          </div>
+        </div>
       )}
 
       <div>
@@ -69,7 +135,9 @@ const Room = () => {
           <div>
             <p>Você é o administrador da sala</p>
 
-            <button onClick={startMatch}>Começar partida</button>
+            <button className={styles.startMatch} onClick={startMatch}>
+              Começar partida
+            </button>
           </div>
         )}
       </div>

@@ -13,7 +13,6 @@ export const config = {
     bodyParser: false,
   },
 };
-let users: any[] = [];
 
 export default function socket(_: NextApiRequest, response: SocketResponse) {
   if (response?.socket?.server.io) {
@@ -21,6 +20,8 @@ export default function socket(_: NextApiRequest, response: SocketResponse) {
   } else {
     console.log("Socket is initializing");
     const io = new Server(response?.socket?.server);
+    let users: any[] = [];
+
     io.on("connection", (socket: any) => {
       console.log("sc0", socket);
       socket.on("join", ({ roomId, name }: any) => {
@@ -51,6 +52,10 @@ export default function socket(_: NextApiRequest, response: SocketResponse) {
           }
           io.to(user.id).emit("balls", randomBall);
         });
+      });
+      socket.on("disconnect", () => {
+        users = users.filter((user) => user.id !== socket.id);
+        io.emit("users", users);
       });
     });
 
