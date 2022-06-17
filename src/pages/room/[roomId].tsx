@@ -15,7 +15,7 @@ const Room = () => {
 
   const socketInitializer = async () => {
     await fetch("/api/socket");
-    socket = io();
+    socket = io("pool-key.vercel.app");
     socket.on("connect", () => {
       console.log("connected");
     });
