@@ -99,8 +99,9 @@ const Room = () => {
               <AccordionIcon />
             </AccordionButton>
             <AccordionPanel pb="4" color="#fff" p="4">
-              {users.map((user: any) => (
+              {users.map((user: any, index) => (
                 <Box
+                  key={index}
                   display={"flex"}
                   alignItems="center"
                   justifyContent={"space-between"}
