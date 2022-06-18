@@ -24,11 +24,11 @@ export default function socket(_: NextApiRequest, response: SocketResponse) {
 
     io.on("connection", (socket: any) => {
       console.log("sc0", socket);
-      socket.on("join", ({ roomId, name, score }: any) => {
+      socket.on("join", ({ roomId, name }: any) => {
         const user = {
           name,
+          score: 0,
           id: socket.id,
-          score: score || 0,
         };
         socket.join(roomId);
         if (name) {
@@ -53,6 +53,14 @@ export default function socket(_: NextApiRequest, response: SocketResponse) {
           }
           io.to(user.id).emit("balls", randomBall);
         });
+      });
+      socket.on("score", ({ name, score, roomId }) => {
+        users.forEach((user) => {
+          if (user.name == name) {
+            user.score = score;
+          }
+        });
+        io.to(roomId).emit("users", users);
       });
       socket.on("disconnect", () => {
         users = users.filter((user) => user.id !== socket.id);

@@ -16,6 +16,7 @@ import {
   Button,
 } from "@chakra-ui/react";
 import styles from "./room.module.scss";
+import NumericStepper from "../../components/molecules/numericStepper/NumericStepper";
 
 let socket: any;
 const Room = () => {
@@ -29,15 +30,6 @@ const Room = () => {
   const [role, setRole] = useState<string>("normal");
   const [balls, setBalls] = useState<number[]>([]);
 
-  const { getInputProps, getIncrementButtonProps, getDecrementButtonProps } =
-    useNumberInput({
-      step: 1,
-      defaultValue: user?.score || 0,
-      min: 0,
-    });
-  const inc = getIncrementButtonProps();
-  const dec = getDecrementButtonProps();
-  const input = getInputProps();
   useEffect(() => {
     socketInitializer();
     return () => {
@@ -57,7 +49,7 @@ const Room = () => {
     });
     socket.on("users", (users: string[]) => {
       setUsers(users);
-      console.log(users);
+      console.log("asd", users);
     });
     socket.on("balls", (balls: number[]) => {
       console.log(balls);
@@ -70,6 +62,8 @@ const Room = () => {
       setRole("master");
     }
     const user = users.find((user) => user.name == name);
+    console.log("user", user);
+
     if (user) {
       setUser(user);
     }
@@ -80,6 +74,7 @@ const Room = () => {
   };
   const sendScore = (e: string, name: string) => {
     socket.emit("score", { name, score: parseInt(e), roomId });
+    console.log("oi");
   };
 
   return (
@@ -112,23 +107,7 @@ const Room = () => {
                   p="8"
                 >
                   <Text m="0">{user.name}</Text>
-                  <HStack maxW="320px">
-                    <Button {...dec} border="none" py="8" px="12">
-                      -
-                    </Button>
-                    <Input
-                      {...input}
-                      maxWidth="50px"
-                      textAlign={"center"}
-                      p="7"
-                      onChange={(e) => {
-                        sendScore(e.target.value, user.name);
-                      }}
-                    />
-                    <Button {...inc} border="none" py="8" px="12">
-                      +
-                    </Button>
-                  </HStack>
+                  <NumericStepper sendScore={sendScore} user={user} />
                 </Box>
               ))}
             </AccordionPanel>
