@@ -23,13 +23,7 @@ const NumericStepper = ({ sendScore, user }: NumericStepperProps) => {
         -
       </Button>
       <Input {...input} maxWidth="50px" textAlign={"center"} p="7" />
-      <Button
-        {...inc}
-        border="none"
-        py="8"
-        px="12"
-        onClick={() => sendScore(4, user.name)}
-      >
+      <Button {...inc} border="none" py="8" px="12">
         +
       </Button>
     </HStack>
