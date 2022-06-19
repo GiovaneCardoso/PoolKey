@@ -1,6 +1,7 @@
 import { Socket } from "net";
 import { NextApiRequest, NextApiResponse } from "next";
 import { Server } from "socket.io";
+import { User } from "../room/[roomId]";
 
 interface SocketResponse extends NextApiResponse {
   socket: Socket & {
@@ -13,6 +14,17 @@ export const config = {
     bodyParser: false,
   },
 };
+interface EndMatch {
+  roomId: string;
+}
+interface StartMatch {
+  roomId: string;
+  ballsToSort: number;
+}
+interface Join {
+  roomId: string;
+  name: string;
+}
 
 export default function socket(_: NextApiRequest, response: SocketResponse) {
   if (response?.socket?.server.io) {
@@ -20,10 +32,10 @@ export default function socket(_: NextApiRequest, response: SocketResponse) {
   } else {
     console.log("Socket is initializing");
     const io = new Server(response?.socket?.server);
-    let users: any[] = [];
+    let users: User[] = [];
 
     io.on("connection", (socket: any) => {
-      socket.on("join", ({ roomId, name }: any) => {
+      socket.on("join", ({ roomId, name }: Join) => {
         const user = {
           name,
           score: 0,
@@ -40,7 +52,7 @@ export default function socket(_: NextApiRequest, response: SocketResponse) {
           users.filter((user) => user.roomId == roomId)
         );
       });
-      socket.on("startMatch", ({ roomId, ballsToSort }: any) => {
+      socket.on("startMatch", ({ roomId, ballsToSort }: StartMatch) => {
         let balls = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
         users.forEach((user) => {
           if (user.roomId != roomId) {
@@ -59,7 +71,7 @@ export default function socket(_: NextApiRequest, response: SocketResponse) {
           io.to(user.id).emit("balls", randomBall);
         });
       });
-      socket.on("endMatch", ({ roomId }: any) => {
+      socket.on("endMatch", ({ roomId }: EndMatch) => {
         users.forEach((user) => {
           if (user.roomId != roomId) {
             return;

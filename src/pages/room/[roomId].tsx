@@ -17,15 +17,23 @@ import styles from "./room.module.scss";
 import NumericStepper from "../../components/molecules/numericStepper/NumericStepper";
 
 let socket: any;
+
+export interface User {
+  name: string;
+  id: string;
+  roomId: string;
+  score: number;
+}
+
 const Room = () => {
   const router = useRouter();
 
   const { name } = useUserContext();
   const { roomId } = router.query;
 
-  const [users, setUsers] = useState<any[]>([]);
-  const [user, setUser] = useState<any>();
-  const [winner, setWinner] = useState<any>();
+  const [users, setUsers] = useState<User[]>([]);
+  const [user, setUser] = useState<User>();
+  const [winner, setWinner] = useState<User | "">();
   const [killedIndex, setKilledIndex] = useState<number[]>([]);
   const [hide, setHide] = useState(false);
   const [role, setRole] = useState<string>("normal");
@@ -47,7 +55,7 @@ const Room = () => {
 
     socket = io();
     socket.on("connect", () => {});
-    socket.on("users", (users: string[]) => {
+    socket.on("users", (users: User[]) => {
       setUsers(users);
     });
     socket.on("balls", (balls: number[]) => {
