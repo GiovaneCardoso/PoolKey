@@ -40,14 +40,14 @@ export default function socket(_: NextApiRequest, response: SocketResponse) {
           users.filter((user) => user.roomId == roomId)
         );
       });
-      socket.on("startMatch", ({ roomId }: any) => {
+      socket.on("startMatch", ({ roomId, ballsToSort }: any) => {
         let balls = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
         users.forEach((user) => {
           if (user.roomId != roomId) {
             return;
           }
           let randomBall = [];
-          for (let i = 0; i < 3; i++) {
+          for (let i = 0; i < ballsToSort; i++) {
             const max = balls.length;
             const min = 1;
             const random = Math.floor(Math.random() * (max - min + 1)) + min;
@@ -57,6 +57,21 @@ export default function socket(_: NextApiRequest, response: SocketResponse) {
             });
           }
           io.to(user.id).emit("balls", randomBall);
+        });
+      });
+      socket.on("endMatch", ({ roomId }: any) => {
+        users.forEach((user) => {
+          if (user.roomId != roomId) {
+            return;
+          }
+          const usersInRoom = users.filter((user) => user.roomId == roomId);
+          const winner = usersInRoom.sort((a, b) => b.score - a.score)[0];
+
+          io.to(roomId).emit("endMatch", winner);
+
+          usersInRoom.forEach((user) => {
+            user.score = 0;
+          });
         });
       });
       socket.on("score", ({ name, score, roomId }) => {

@@ -24,14 +24,26 @@
     .ballsImg {
       display: flex;
       gap: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
       img {
         width: 150px;
         height: 150px;
+        @media screen and (max-width: 768px) {
+          width: 75px;
+          height: 75px;
+        }
       }
     }
   }
   .admin {
     margin-top: 30px;
+    h2 {
+      font-size: 20px;
+    }
+    .ballsSelect {
+      margin: 15px 0;
+    }
   }
   .hideBalls {
     display: block;
@@ -46,11 +58,14 @@
     span {
       position: absolute;
       color: red;
-      font-size: 101px;
+      font-size: 100px;
       width: 100%;
       display: flex;
       justify-content: center;
       cursor: pointer;
+      @media screen and (max-width: 768px) {
+        font-size: 55px;
+      }
     }
   }
   .startMatch {
