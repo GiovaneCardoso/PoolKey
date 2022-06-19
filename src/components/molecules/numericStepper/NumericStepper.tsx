@@ -3,10 +3,11 @@ import { QuantitySelector } from "@faststore/ui";
 import { HStack, Icon } from "@chakra-ui/react";
 import { RiAddLine, RiSubtractLine } from "react-icons/ri";
 import "./numeric.module.scss";
+import { User } from "../../../pages/room/[roomId]";
 
 interface NumericStepperProps {
   sendScore: (score: number, name: string) => void;
-  user: any;
+  user: User;
   disabled: boolean;
 }
 

@@ -15,6 +15,7 @@ import {
 } from "@chakra-ui/react";
 import styles from "./room.module.scss";
 import NumericStepper from "../../components/molecules/numericStepper/NumericStepper";
+import Head from "next/head";
 
 let socket: any;
 
@@ -102,6 +103,14 @@ const Room = () => {
 
   return (
     <div className={styles.roomContainer}>
+      <Head>
+        <title>PoolKey</title>
+        <meta
+          name="description"
+          content="An app created to manage snook games"
+        />
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
       <div className={styles.userData}>
         <h1>Olá {name}</h1>
         <p>Sala: {roomId}</p>
