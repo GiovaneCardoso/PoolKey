@@ -12,13 +12,6 @@ const UserContext = createContext({} as UserContext);
 
 export function UserContextProvider({ children }: SidebarDrawerProviderProps) {
   const [name, setName] = useState("");
-
-  useEffect(() => {
-    const user = localStorage.getItem("user");
-    if (user) {
-      setName(user);
-    }
-  }, [name]);
   return (
     <UserContext.Provider value={{ name, setName }}>
       {children}

@@ -10,10 +10,7 @@ import {
   AccordionPanel,
   Text,
   Box,
-  useNumberInput,
-  HStack,
-  Input,
-  Button,
+  Skeleton,
 } from "@chakra-ui/react";
 import styles from "./room.module.scss";
 import NumericStepper from "../../components/molecules/numericStepper/NumericStepper";
@@ -27,6 +24,8 @@ const Room = () => {
 
   const [users, setUsers] = useState<any[]>([]);
   const [user, setUser] = useState<any>();
+  const [killedIndex, setKilledIndex] = useState<number[]>([]);
+  const [hide, setHide] = useState(false);
   const [role, setRole] = useState<string>("normal");
   const [balls, setBalls] = useState<number[]>([]);
 
@@ -44,15 +43,11 @@ const Room = () => {
     await fetch("/api/socket");
 
     socket = io();
-    socket.on("connect", () => {
-      console.log("connected");
-    });
+    socket.on("connect", () => {});
     socket.on("users", (users: string[]) => {
       setUsers(users);
-      console.log("asd", users);
     });
     socket.on("balls", (balls: number[]) => {
-      console.log(balls);
       setBalls(balls);
     });
     socket.emit("join", { roomId, name });
@@ -62,19 +57,23 @@ const Room = () => {
       setRole("master");
     }
     const user = users.find((user) => user.name == name);
-    console.log("user", user);
-
     if (user) {
       setUser(user);
     }
   }, [users]);
 
   const startMatch = () => {
-    socket.emit("startMatch");
+    socket.emit("startMatch", { roomId });
   };
-  const sendScore = (e: string, name: string) => {
-    socket.emit("score", { name, score: parseInt(e), roomId });
-    console.log("oi");
+  const sendScore = (e: number, name: string) => {
+    socket.emit("score", { name, score: e, roomId });
+  };
+  const killBall = (index: number) => {
+    killedIndex.includes(index)
+      ? setKilledIndex((oldState) =>
+          oldState.filter((ballIndex) => ballIndex != index)
+        )
+      : setKilledIndex((oldState) => [...oldState, index]);
   };
 
   return (
@@ -84,7 +83,7 @@ const Room = () => {
         <p>Sala: {roomId}</p>
       </div>
       <div>
-        <Accordion allowToggle bg="#737380" color="#fff">
+        <Accordion allowToggle bg="#737380" color="#fff" mb={8} mt={4}>
           <AccordionItem bg="#737380" color="#fff">
             <AccordionButton
               bg="#737380"
@@ -105,10 +104,14 @@ const Room = () => {
                   display={"flex"}
                   alignItems="center"
                   justifyContent={"space-between"}
-                  p="8"
+                  p="0"
                 >
                   <Text m="0">{user.name}</Text>
-                  <NumericStepper sendScore={sendScore} user={user} />
+                  <NumericStepper
+                    sendScore={sendScore}
+                    user={user}
+                    disabled={role != "master"}
+                  />
                 </Box>
               ))}
             </AccordionPanel>
@@ -119,14 +122,28 @@ const Room = () => {
         <div className={styles.balls}>
           <p>Bolas</p>
           <div className={styles.ballsImg}>
-            {balls?.map((numberOfBall) => (
-              <img key={numberOfBall} src={`/images/${numberOfBall}.png`} />
+            {balls?.map((numberOfBall, index) => (
+              <Skeleton width={150} height={150} isLoaded={!hide}>
+                <div className={styles.ballItem}>
+                  {killedIndex.includes(index) && (
+                    <span className={styles.killedBall}>X</span>
+                  )}
+                  <img
+                    key={numberOfBall}
+                    src={`/images/${numberOfBall}.png`}
+                    onClick={() => killBall(index)}
+                  />
+                </div>
+              </Skeleton>
             ))}
           </div>
+          <button className={styles.hideBalls} onClick={() => setHide(!hide)}>
+            {hide ? "Mostrar" : "Esconder"}
+          </button>
         </div>
       )}
 
-      <div>
+      <div className={styles.admin}>
         {role == "master" && (
           <div>
             <p>Você é o administrador da sala</p>

@@ -23,24 +23,29 @@ export default function socket(_: NextApiRequest, response: SocketResponse) {
     let users: any[] = [];
 
     io.on("connection", (socket: any) => {
-      console.log("sc0", socket);
       socket.on("join", ({ roomId, name }: any) => {
         const user = {
           name,
           score: 0,
           id: socket.id,
+          roomId,
         };
         socket.join(roomId);
         if (name) {
           users.push(user);
         }
-        console.log(users);
 
-        io.to(roomId).emit("users", users);
+        io.to(roomId).emit(
+          "users",
+          users.filter((user) => user.roomId == roomId)
+        );
       });
-      socket.on("startMatch", () => {
+      socket.on("startMatch", ({ roomId }: any) => {
         let balls = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
         users.forEach((user) => {
+          if (user.roomId != roomId) {
+            return;
+          }
           let randomBall = [];
           for (let i = 0; i < 3; i++) {
             const max = balls.length;
@@ -60,7 +65,10 @@ export default function socket(_: NextApiRequest, response: SocketResponse) {
             user.score = score;
           }
         });
-        io.to(roomId).emit("users", users);
+        io.to(roomId).emit(
+          "users",
+          users.filter((user) => user.roomId == roomId)
+        );
       });
       socket.on("disconnect", () => {
         users = users.filter((user) => user.id !== socket.id);

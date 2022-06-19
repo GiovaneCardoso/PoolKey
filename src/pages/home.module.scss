@@ -1,0 +1,43 @@
+.homeContainer {
+  background: #27272b;
+  padding: 50px;
+  border-radius: 20px;
+  max-width: 500px;
+  margin: 0 auto;
+  @media screen and (max-width: 768px) {
+    background: #27272b;
+    margin: 10px;
+    padding: 20px;
+    border-radius: 15px;
+  }
+  h1 {
+    color: #fff;
+    margin-bottom: 40px;
+    text-align: center;
+  }
+  .inputLabel {
+    display: block;
+    margin: 10px 0;
+  }
+  .input {
+    min-width: 290px;
+    width: 100%;
+    padding: 12px;
+    border-radius: 4px;
+    color: #27272b;
+    border: none;
+  }
+  .submitButton {
+    display: block;
+    width: 100%;
+    background: #04d361;
+    color: #fff;
+    border: 0;
+    padding: 12px 0;
+    font-weight: bold;
+    border-radius: 4px;
+    margin-top: 40px;
+    font-size: 18px;
+    cursor: pointer;
+  }
+}
