@@ -123,7 +123,7 @@ const Room = () => {
           <p>Bolas</p>
           <div className={styles.ballsImg}>
             {balls?.map((numberOfBall, index) => (
-              <Skeleton width={150} height={150} isLoaded={!hide}>
+              <Skeleton width={150} height={150} isLoaded={!hide} key={index}>
                 <div className={styles.ballItem}>
                   {killedIndex.includes(index) && (
                     <span className={styles.killedBall}>X</span>
